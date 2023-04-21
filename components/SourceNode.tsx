@@ -1,15 +1,19 @@
 import { isAddress } from "ethers";
 import { ChangeEvent, useCallback, useState } from "react";
-import { Handle, Position, Node, NodeProps } from "reactflow";
+import { Handle, Position, Node, NodeProps, NodeToolbar } from "reactflow";
 import useAddressInfo from "../hooks/useAddressInfo";
 import EventLogs from "./EventLogs";
+import { ChainId } from "../lib/network";
+import NetworkSelect, { NetworkIcon } from "./NetworkSelect";
 
 type NodeData = {
-  value: number;
+  chainId: number;
 };
 
 export default function EventSourceNode({}: NodeProps<NodeData>) {
   const [contract, setContract] = useState("");
+  const [chainId, setChainId] = useState<ChainId>(1);
+  const [isVisible, setVisible] = useState(false);
 
   const onChange = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
     setContract(evt.target.value);
@@ -34,7 +38,13 @@ export default function EventSourceNode({}: NodeProps<NodeData>) {
 
   return (
     <>
+      <NodeToolbar>
+        <NetworkSelect chainId={chainId} setChainId={setChainId} />
+      </NodeToolbar>
       <div className="flex flex-col items-center p-1 bg-white border rounded shadow-sm">
+        <div className="absolute p-1 right-1 top-1">
+          <NetworkIcon chainId={chainId} />
+        </div>
         <div className="text-xs text-gray-600">Event source</div>
         <div className="text-xs text-gray-800">{hintText}</div>
         <div className="flex w-full gap-2 p-2 text-sm">

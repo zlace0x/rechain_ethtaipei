@@ -11,9 +11,12 @@ import ReactFlow, {
   OnEdgesChange,
   OnNodesChange,
   Panel,
+  useEdgesState,
+  useNodesState,
 } from "reactflow";
-import EventSourceNode from "./EventSourceNode";
+import EventSourceNode from "./SourceNode";
 import "reactflow/dist/style.css";
+import EventFilterNode from "./FilterNode";
 
 const initialNodes: Node[] = [
   {
@@ -26,20 +29,13 @@ const initialNodes: Node[] = [
 // we define the nodeTypes outside of the component to prevent re-renderings
 // you could also use useMemo inside the component
 
-const nodeTypes = { eventSourceNode: EventSourceNode };
+const nodeTypes = { eventSourceNode: EventSourceNode, eventFilterNode: EventFilterNode };
 let nodeId = 1;
-export default function WorkflowBuilder() {
-  const [nodes, setNodes] = useState(initialNodes);
-  const [edges, setEdges] = useState<Edge[]>([]);
 
-  const onNodesChange: OnNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    [setNodes]
-  );
-  const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-    [setEdges]
-  );
+export default function WorkflowBuilder() {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([]);
+
   const onConnect: OnConnect = useCallback(
     (connection) => setEdges((eds) => addEdge(connection, eds)),
     [setEdges]
@@ -61,6 +57,22 @@ export default function WorkflowBuilder() {
     setNodes((ns) => ns.concat(newNode));
   }, []);
 
+  const addFilterNode = useCallback(() => {
+    const id = `${++nodeId}`;
+    const newNode = {
+      id,
+      type: "eventFilterNode",
+      position: {
+        x: Math.random() * 500,
+        y: Math.random() * 500,
+      },
+      data: {
+        value: nodeId,
+      },
+    };
+    setNodes((ns) => ns.concat(newNode));
+  }, []);
+
   return (
     <div style={{ width: "100vw", height: "100vh" }}>
       <ReactFlow
@@ -71,12 +83,19 @@ export default function WorkflowBuilder() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
       >
-        <Panel position="top-left">
+        <Panel position="top-left" className="flex gap-2">
           <div
             className="px-4 py-2 border rounded shadow-lg bg-gray-50"
             onClick={addSourceNode}
           >
             Add source
+          </div>
+
+          <div
+            className="px-4 py-2 border rounded shadow-lg bg-gray-50"
+            onClick={addFilterNode}
+          >
+            Add filter
           </div>
         </Panel>
         <Background />

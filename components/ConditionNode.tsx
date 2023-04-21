@@ -5,11 +5,12 @@ import EventLogs from "./EventLogs";
 
 type NodeData = {};
 
-export default function EventFilterNode({}: NodeProps<NodeData>) {
+export default function ConditionNode({}: NodeProps<NodeData>) {
+  const [contract, setContract] = useState("");
+
   return (
-    <div className="w-full p-4 bg-gray-100 rounded-lg">
+    <div className="w-full">
       <span className="text-sm">Select event:</span>
-      <Handle type="target" position={Position.Left} id="a" />
     </div>
   );
 }
