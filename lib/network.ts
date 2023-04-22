@@ -1,4 +1,4 @@
-export type ChainId = number | string;
+export type ChainId = string | number;
 
 export enum SupportedChainId {
   FURU_MAINNET = 1,
@@ -37,7 +37,7 @@ export const CHAIN_INFO: Record<ChainId, any> = {
     chainName: "goerli",
     swapLink: "https://app.uniswap.org/#/swap?",
     nativeCurrency: { name: "Görli Ether", symbol: "görETH", decimals: 18 },
-    logo: "/eth_logo.svg",
+    logo: "/eth_logo.png",
     disabled: false,
     rpcUrls: [`https://rpc.ankr.com/eth_goerli`],
   },

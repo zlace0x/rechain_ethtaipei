@@ -4,8 +4,9 @@ import { AddressInfo, ErrorMessage } from "../pages/api/address/info";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
-export default function useAddressInfo(address: string) {
-  const chainId = 42161; // TODO: use web3 provider or config
+export default function useAddressInfo(address: string, chainId: number | string) {
+  // Pass the chainId
+  console.log('[useAddressInfo.ts] chainId: ', chainId)
   const isValidAddress = isAddress(address);
 
   return useSWR<AddressInfo, ErrorMessage>(

@@ -20,11 +20,12 @@ export default function EventSourceNode({}: NodeProps<NodeData>) {
   }, []);
 
   const isValidAddress = isAddress(contract);
+  console.log('[SourceNode.tsx] chainId: ', chainId)
   const {
     data: addressInfo,
     error: addressInfoError,
     isLoading,
-  } = useAddressInfo(contract);
+  } = useAddressInfo(contract, chainId);
 
   const isContract = !addressInfoError && addressInfo?.isContract;
 
@@ -60,7 +61,7 @@ export default function EventSourceNode({}: NodeProps<NodeData>) {
             }`}
           />
         </div>
-        {isContract && isValidAddress && <EventLogs address={contract} />}
+        {isContract && isValidAddress && <EventLogs address={contract} chainId={chainId}/>}
       </div>
       <Handle type="source" position={Position.Right} id="a" />
     </>
