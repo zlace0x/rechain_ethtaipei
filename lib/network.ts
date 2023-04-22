@@ -1,4 +1,4 @@
-export type ChainId = string | number;
+export type ChainId = number | string;
 
 export enum SupportedChainId {
   FURU_MAINNET = 1,

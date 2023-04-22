@@ -30,7 +30,7 @@ export default async function handler(
   if (req.method !== "GET") return res.status(501);
 
   const { address, chainId } = req.query;
-  
+
   if (!address || !chainId) return res.status(400).json({ message: "Bad request" });
 
   if (!isAddress(address)) {
