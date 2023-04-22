@@ -11,7 +11,6 @@ export type AddressInfo = {
 export type ErrorMessage = {
   message: string;
 };
-
 async function hasContractCode(
   provider: JsonRpcProvider,
   address: string
@@ -39,11 +38,8 @@ export default async function handler(
     res.status(400).json({ message: "Invalid address format" });
     return;
   }
-  //chainId = '1';
-  const provider = new InfuraProvider(
-    parseInt(chainId as string),
-    process.env.INFURA_API_KEY
-  );
+
+  const provider = await providerHandler(chainId[0]);
 
   const isContract = await hasContractCode(provider, address as string);
   const info: AddressInfo = {
@@ -59,10 +55,21 @@ export default async function handler(
   return res.status(200).json(info);
 }
 
-async function getContractABI(address: string) {
-  
+
+async function getContractABI(address: string, chainId: string) {
+  // Change ChainID
+  let fetchUrl = ""
+  console.log('[info.ts] chainId is: ', chainId)
+  switch(chainId){
+    case '0x64':{
+      fetchUrl = `https://api.gnosisscan.io/api?module=contract&action=getabi&address=${address}&apikey=${process.env.GNOSISSCAN_API_KEY}`
+    }
+    default:{
+      fetchUrl = `https://api.arbiscan.io/api?module=contract&action=getabi&address=${address}&apikey=${process.env.ARBISCAN_API_KEY}`
+    }
+  }
   const response = await fetch(
-    `https://api.arbiscan.io/api?module=contract&action=getabi&address=${address}&apikey=${process.env.ARBISCAN_API_KEY}&position=3`
+    fetchUrl
   );
   const data = await response.json();
   if (data.status !== "1") return null;   
@@ -84,3 +91,21 @@ async function isTransparentProxy(proxyAddress: string, provider: Provider): Pro
   return target;
 }
 
+async function providerHandler(chainId: string | number){
+  if(chainId === '100'){
+    let url = process.env.QUICKNODE_PROVIDER;
+    var customHttpProvider = new JsonRpcProvider(url);
+    customHttpProvider.getBlockNumber().then((result) => {
+        console.log("Current block number: " + result);
+    });
+    return customHttpProvider;
+  }
+  else {
+    var provider = new InfuraProvider(
+      parseInt(chainId as string),
+      process.env.INFURA_API_KEY
+    );
+    return provider;
+  }
+
+}

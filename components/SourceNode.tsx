@@ -5,26 +5,36 @@ import useAddressInfo from "../hooks/useAddressInfo";
 import EventLogs from "./EventLogs";
 import { ChainId } from "../lib/network";
 import NetworkSelect, { NetworkIcon } from "./NetworkSelect";
+import useStore, { RFState } from "../lib/store";
+import { shallow } from "zustand/shallow";
 
 type NodeData = {
   chainId: number;
+  address: string;
+  outputEvents: Array<any>;
 };
 
-export default function EventSourceNode({}: NodeProps<NodeData>) {
+const selector = (state: RFState) => ({
+  updateNode: state.updateNode,
+});
+
+export default function EventSourceNode({ selected, id }: NodeProps<NodeData>) {
   const [contract, setContract] = useState("");
   const [chainId, setChainId] = useState<ChainId>(1);
-  const [isVisible, setVisible] = useState(false);
+  const { updateNode } = useStore(selector, shallow);
 
   const onChange = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
     setContract(evt.target.value);
+    updateNode(id, { data: { address: evt.target.value } });
   }, []);
 
   const isValidAddress = isAddress(contract);
+  console.log('[SourceNode.tsx] chainId: ', chainId)
   const {
     data: addressInfo,
     error: addressInfoError,
     isLoading,
-  } = useAddressInfo(contract);
+  } = useAddressInfo(contract, chainId);
 
   const isContract = !addressInfoError && addressInfo?.isContract;
 
@@ -41,7 +51,11 @@ export default function EventSourceNode({}: NodeProps<NodeData>) {
       <NodeToolbar>
         <NetworkSelect chainId={chainId} setChainId={setChainId} />
       </NodeToolbar>
-      <div className="flex flex-col items-center p-1 bg-white border rounded shadow-sm">
+      <div
+        className={`flex flex-col items-center p-1 bg-white border rounded shadow-sm ${
+          selected && "border-blue-400"
+        }`}
+      >
         <div className="absolute p-1 right-1 top-1">
           <NetworkIcon chainId={chainId} />
         </div>
@@ -55,12 +69,12 @@ export default function EventSourceNode({}: NodeProps<NodeData>) {
             value={contract}
             placeholder="0x..."
             onChange={onChange}
-            className={`rounded nodrag ring-1 ${
+            className={`rounded w-full nodrag ring-1 ${
               isValidAddress ? "ring-blue-400" : "ring-red-400"
             }`}
           />
         </div>
-        {isContract && isValidAddress && <EventLogs address={contract} />}
+        {isContract && isValidAddress && <EventLogs address={contract} chainId={chainId}/>}
       </div>
       <Handle type="source" position={Position.Right} id="a" />
     </>
