@@ -1,9 +1,6 @@
 import { isAddress, Interface, EventFragment, JsonRpcProvider, Provider, Log} from "ethers";
-import { EvmTransactionLog } from "moralis/common-evm-utils";
-import { formatHexChainId } from "../../../lib/network";
 import { NextApiRequest, NextApiResponse } from "next";
-import { ChainId, PRIVATE_RPC, SupportedChainId } from "../../../lib/network";
-import useAddressInfo from "../../../hooks/useAddressInfo";
+import { ChainId, PRIVATE_RPC } from "../../../lib/network";
 
 export type ContractInfo = {
     name?:string[]
@@ -46,58 +43,5 @@ export default async function handler(
         toBlock: BN,
     }
     const data = await provider.getLogs(filter)
-    // const result = await fetch(`http://localhost:3000/api/address/info?address=${address}&chainId=${chainId}`)
-    // const _result = await result.json();
-// 
   return res.status(200).json(data);
 }
-/** Filters for unique events and parses them */
-function parseUniqueLogs(logs: Log[], abi: string) {
-    const contractInterface = new Interface(JSON.parse(abi));
-    const formattedLogs = filterUniqueTopics(logs).map((log) => {
-        const event = contractInterface.parseLog({
-        topics: log.topics.filter((topic) => topic !== null) as string[],
-        data: log.data,
-      });
-      // If no ABI matches the signature, return null;
-      if (!event) {
-        return null;
-      }
-  
-      // Extract human-readable event parameters
-      const eventParameters: Record<string, any> = {};
-      event.fragment.inputs.forEach((input, index) => {
-        eventParameters[input.name] = event.args[index];
-      });
-  
-      return {
-        name: event.name,
-        ...eventParameters,
-      };
-    });
-  
-    return formattedLogs.filter((e): e is Exclude<typeof e, null> => !!e);
-  }
-
-function filterUniqueTopics(logs: Log[]): Log[] {
-    const uniqueTopics = new Set<string>();
-    const uniqueLogs: Log[] = [];
-    logs.forEach((log) => {
-      const topic = log.topics[0];
-      if (topic && !uniqueTopics.has(topic)) {
-        uniqueTopics.add(topic);
-        uniqueLogs.push(log);
-      }
-    });
-    return uniqueLogs;
-  }
-  
-  export function filterABIEvents(abi: string): EventFragment[] {
-    const contractInterface = new Interface(abi);
-    const events: EventFragment[] = [];
-    contractInterface.forEachEvent((evt) => {
-      events.push(evt);
-      return evt;
-    });
-    return events;
-  }

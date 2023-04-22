@@ -112,10 +112,3 @@ async function getTransparentProxy(
 
   return target;
 }
-
-async function providerHandler(chainId: ChainId) {
-  if (!(chainId in PRIVATE_RPC)) throw new Error("Invalid chainId");
-
-  let url = PRIVATE_RPC[chainId];
-  return new JsonRpcProvider(url);
-}
