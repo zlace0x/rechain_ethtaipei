@@ -1,5 +1,5 @@
 import { Node } from "reactflow";
-import FilterConfig from "./FilterConfig";
+import FilterConfig from "./FilterPanel/FilterConfig";
 import SourceConfig from "./SourceConfig";
 
 type Props = {
@@ -16,7 +16,7 @@ export default function DetailPanel({ node }: Props) {
   return (
     <div className="flex flex-col items-center justify-start p-1">
       <div className="text-sm font-bold text-gray-800">
-        {node?.type == "eventSourceNode" ? "Event Source" : "Condition"}
+        {node?.type == "eventSourceNode" ? "Event Source" : "Event Condition Filter"}
       </div>
 
       {node && node?.type == "eventSourceNode" ? (

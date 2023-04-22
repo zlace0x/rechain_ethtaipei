@@ -1,7 +1,12 @@
 import { isAddress, JsonRpcProvider, Provider } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ethers } from "ethers";
-import { ChainId, PRIVATE_RPC, SupportedChainId } from "../../../lib/network";
+import {
+  ChainId,
+  PRIVATE_RPC,
+  providerHandler,
+  SupportedChainId,
+} from "../../../lib/network";
 
 export type AddressInfo = {
   address: string;
@@ -108,54 +113,4 @@ async function getTransparentProxy(
   );
 
   return target;
-}
-
-async function providerHandler(chainId: ChainId) {
-  if (!(chainId in PRIVATE_RPC)) throw new Error("Invalid chainId");
-
-  let url = PRIVATE_RPC[chainId];
-  return new JsonRpcProvider(url);
-}
-
-export async function getGnosisLog(
-  contract:string
-  ){
-    let result
-    let isFetching = true
-    let myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    let raw = JSON.stringify({
-      "method": "eth_getLogs",
-      "params": [
-        {
-          "toBlock":"latest",
-          "fromBlock":"earliest",
-          "address": contract
-        }
-      ],
-      "id": 1,
-      "jsonrpc": "2.0"
-    });
-
-    let requestOptions: RequestInit = {
-      method: 'POST',
-      headers: myHeaders,
-      body: raw,
-      redirect: 'follow'
-    };
-
-    await fetch("https://intensive-polished-gas.xdai.quiknode.pro/4bd2790c7745c2d9231c55d9a9dd86c06c77dee2/", requestOptions)
-    .then(response => response.json())
-    .then(result => {
-      console.log('[useContractEvents.ts] Gnosis data: ', result)
-      result = result
-      isFetching = false
-    })
-    .catch(error => {
-      console.log('[useContractEvents.ts] error:  ', error)
-      result = error
-      isFetching = false
-    });
-    return {result, isFetching}
 }

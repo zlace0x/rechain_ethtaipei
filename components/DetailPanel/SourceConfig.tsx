@@ -24,7 +24,7 @@ export default function SourceConfig({ node }: Props) {
           <div className="text-xs text-gray-600">Events</div>
           <div className="flex flex-col h-[80vh] overflow-y-scroll gap-y-4 p-1">
             {allEvents.map((event) => (
-              <EventItem event={event} />
+              <EventItem event={event} key={event.name} />
             ))}
           </div>
         </>
