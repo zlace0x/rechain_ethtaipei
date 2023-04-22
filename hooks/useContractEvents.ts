@@ -1,5 +1,5 @@
 import { useEvmContractLogs } from "@moralisweb3/next";
-import { Interface } from "ethers";
+import { EventFragment, Interface } from "ethers";
 import { EvmTransactionLog } from "moralis/common-evm-utils";
 import useAddressInfo from "./useAddressInfo";
 import { formatHexChainId } from "../lib/network";
@@ -14,8 +14,7 @@ export default function useContractEvents(contract: string, chainId: string | nu
   console.log('[useContractEvents.ts] data: ', data)
   const { data: addressInfo } = useAddressInfo(contract, chainId);
 
-  const parsedLogs =
-    addressInfo && parseUniqueLogs(data || [], addressInfo?.contractABI || "[]");
+  const parsedLogs = addressInfo && parseUniqueLogs(data || [], addressInfo?.abi || "[]");
 
   return { data, parsedLogs, isFetching };
 }
@@ -60,4 +59,14 @@ function filterUniqueTopics(logs: EvmTransactionLog[]): EvmTransactionLog[] {
     }
   });
   return uniqueLogs;
+}
+
+export function filterABIEvents(abi: string): EventFragment[] {
+  const contractInterface = new Interface(abi);
+  const events: EventFragment[] = [];
+  contractInterface.forEachEvent((evt) => {
+    events.push(evt);
+    return evt;
+  });
+  return events;
 }
