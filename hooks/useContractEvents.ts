@@ -3,13 +3,15 @@ import { Interface } from "ethers";
 import { EvmTransactionLog } from "moralis/common-evm-utils";
 import useAddressInfo from "./useAddressInfo";
 
-export default function useContractEvents(contract: string) {
+// Get ChainID
+export default function useContractEvents(contract: string, chainId: string|number) {
   const { data, isFetching } = useEvmContractLogs({
-    chain: "0xa4b1",
+    chain: chainId,
     address: contract,
   });
+  console.log('[useContractEvents.ts] data: ', data)
 
-  const { data: addressInfo } = useAddressInfo(contract);
+  const { data: addressInfo } = useAddressInfo(contract, chainId);
 
   const parsedLogs =
     addressInfo && parseUniqueLogs(data || [], addressInfo?.contractABI || "[]");
