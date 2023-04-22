@@ -38,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const BN = await provider.getBlockNumber(); // 83162946; //
   console.log("Current block number", BN);
   const filter: Filter = {
-    fromBlock: BN - 10,
+    fromBlock: BN - 100,
     toBlock: BN,
     address: address,
   };
