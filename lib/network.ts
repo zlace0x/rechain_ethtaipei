@@ -94,3 +94,8 @@ export async function providerHandler(chainId: ChainId) {
   let url = PRIVATE_RPC[chainId];
   return new JsonRpcProvider(url);
 }
+
+export function getExplorer(chainId: ChainId, hash: string) {
+  if (!(chainId in CHAIN_INFO)) throw new Error("Invalid chainId");
+  return CHAIN_INFO[chainId].explorer + "tx/" + hash;
+}

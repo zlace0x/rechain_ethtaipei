@@ -78,8 +78,9 @@ export default function FilterConfig({ node }: Props) {
         name="eventFilter"
         onChange={selectEventFilter}
         value={condition?.event?.topicHash}
+        defaultValue=""
       >
-        <option value="" disabled selected hidden>
+        <option value="" disabled hidden>
           Choose an event
         </option>
         {sourceEvents.map((e) => (

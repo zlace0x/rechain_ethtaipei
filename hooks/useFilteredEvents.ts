@@ -4,18 +4,17 @@ import { ErrorMessage } from "../pages/api/contract/info";
 import useAddressInfo from "./useAddressInfo";
 import { useMemo } from "react";
 import { Condition } from "../components/FilterNode";
+import { parseLogs } from "../lib/events";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export default function useFilterEvents(
-  address: string,
-  chainId: number | string,
-  filter: Condition
+  address?: string,
+  chainId?: number | string,
+  filter?: Condition
 ) {
-  const isValidAddress = isAddress(address);
-  console.log("address", address);
-  console.log("chainId", chainId);
-  console.log("filter", filter);
+  const isValidAddress = address && isAddress(address);
+
   const { data: rawLogs, isLoading: logLoading } = useSWR<Log[]>(
     isValidAddress
       ? `/api/contract/logs?address=${address}&chainId=${chainId}&topic=${filter?.event.topicHash}`
@@ -51,40 +50,6 @@ export type FormattedLog = {
   event: EventFragment;
   params: any;
 };
-function parseLogs(logs: Log[], abi: string): FormattedLog[] {
-  const contractInterface = new Interface(abi);
-  const formattedLogs = logs.map((log) => {
-    const event = contractInterface.parseLog({
-      topics: log.topics.filter((topic) => topic !== null) as string[],
-      data: log.data,
-    });
-
-    // If no ABI matches the signature, return null;
-    if (!event) {
-      return null;
-    }
-
-    // Extract human-readable event parameters
-    const eventParameters: Record<string, any> = {};
-    event.fragment.inputs.forEach((input, index) => {
-      eventParameters[input.name] = event.args[index];
-    });
-
-    return {
-      blockNumber: log.blockNumber,
-      data: log.data,
-      name: event.name,
-      hash: log.transactionHash,
-      id: `${log.transactionHash}-${log.index}`,
-      event: event.fragment,
-      params: eventParameters,
-    };
-  });
-
-  return formattedLogs
-    .filter((e): e is Exclude<typeof e, null> => !!e)
-    .sort((a, b) => b.blockNumber - a.blockNumber);
-}
 
 function processConditions(logs: FormattedLog[], condition?: Condition): FormattedLog[] {
   if (!condition) return logs;

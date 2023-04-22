@@ -15,6 +15,7 @@ export default function FilterCondition({ condition, setRule, removeRule }: Prop
       <div className="text-xs text-gray-600">{name}</div>
       {inputs.map((input) => (
         <ParamInput
+          key={input.name}
           param={input}
           isEnabled={!!rules?.[input.name]}
           value={rules?.[input.name]?.value ?? ""}

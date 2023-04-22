@@ -36,12 +36,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const provider = await providerHandler(chainId as string);
   const BN = await provider.getBlockNumber();
   const filter = {
-    fromBlock: BN - 10,
+    fromBlock: BN - 100,
     toBlock: BN,
   };
   const data = await provider.getLogs(filter);
   // const data = await provider.send("trace_filter", [filter]);
 
   // console.log("logs", data);
-  return res.status(200).json(data);
+  return res.status(200).json({
+    blockNumber: BN,
+    logs: data,
+  });
 }

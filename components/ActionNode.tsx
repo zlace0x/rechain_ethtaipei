@@ -15,6 +15,7 @@ export const ActionTypeLabel = {
 };
 
 export type ActionLog = {
+  id: string;
   timestamp: number;
   triggerBy: string; // log.id or manual
   results: {
@@ -30,6 +31,7 @@ export type ActionNodeData = {
   isValid: boolean;
   status: "running" | "stopped";
   actionLog: ActionLog[];
+  actionResult: Record<string, ActionLog>;
 };
 
 const selector = (state: RFState) => ({

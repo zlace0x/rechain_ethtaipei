@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { FormattedLog } from "../hooks/useFilteredEvents";
 import { Condition } from "../components/FilterNode";
 import { AddressInfo } from "../pages/api/address/info";
-import { Interface, Log } from "ethers";
+import { Interface, Log, LogDescription } from "ethers";
 
 export type SourceInfo = {
   chainId: number;
@@ -53,14 +53,19 @@ const useStore = create<EventState>((set, get) => ({
 }));
 export default useStore;
 
-function parseLogs(logs: Log[], abi: string): FormattedLog[] {
+export function parseLogs(logs: Log[], abi: string): FormattedLog[] {
   const contractInterface = new Interface(abi);
   const formattedLogs = logs.map((log) => {
-    const event = contractInterface.parseLog({
-      topics: log.topics.filter((topic) => topic !== null) as string[],
-      data: log.data,
-    });
-
+    let event: LogDescription | null;
+    try {
+      event = contractInterface.parseLog({
+        topics: log.topics.filter((topic) => topic !== null) as string[],
+        data: log.data,
+      });
+    } catch (e) {
+      console.log("e", e);
+      return null;
+    }
     // If no ABI matches the signature, return null;
     if (!event) {
       return null;

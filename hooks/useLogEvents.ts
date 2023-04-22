@@ -1,9 +1,10 @@
-import { EventFragment, Interface, Log, isAddress } from "ethers";
+import { EventFragment, Interface, Log, LogDescription, isAddress } from "ethers";
 import useSWR from "swr";
 import { ErrorMessage } from "../pages/api/contract/info";
 import useAddressInfo from "./useAddressInfo";
 import { useMemo } from "react";
 import { Condition } from "../components/FilterNode";
+import { parseLogs } from "../lib/events";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -14,13 +15,16 @@ export default function useLogEvents(
 ) {
   const isValidAddress = isAddress(address);
 
-  const { data: rawLogs, isLoading: logLoading } = useSWR<Log[]>(
+  const { data: rawLogs, isLoading: logLoading } = useSWR<{
+    logs: Log[];
+    blockNumber: number;
+  }>(
     isValidAddress ? `/api/contract/info?address=${address}&chainId=${chainId}` : null,
     fetcher,
     { refreshInterval: 5000 }
   );
 
-  console.log("rawLogs", rawLogs?.length);
+  console.log("rawLogs", rawLogs?.logs?.length);
   const { data: addressInfo, isLoading: addressLoading } = useAddressInfo(
     address,
     chainId
@@ -28,8 +32,8 @@ export default function useLogEvents(
 
   const logs = useMemo(() => {
     if (!addressInfo) return;
-    if (!rawLogs || rawLogs?.length === 0) return;
-    return parseLogs(rawLogs || [], addressInfo?.abi || "[]");
+    if (!rawLogs || rawLogs?.logs?.length === 0) return;
+    return parseLogs(rawLogs?.logs || [], addressInfo?.abi || "[]");
   }, [rawLogs, addressInfo]);
 
   const filteredLogs = useMemo(() => {
@@ -48,40 +52,6 @@ type FormattedLog = {
   event: EventFragment;
   params: any;
 };
-function parseLogs(logs: Log[], abi: string): FormattedLog[] {
-  const contractInterface = new Interface(abi);
-  const formattedLogs = logs.map((log) => {
-    const event = contractInterface.parseLog({
-      topics: log.topics.filter((topic) => topic !== null) as string[],
-      data: log.data,
-    });
-
-    // If no ABI matches the signature, return null;
-    if (!event) {
-      return null;
-    }
-
-    // Extract human-readable event parameters
-    const eventParameters: Record<string, any> = {};
-    event.fragment.inputs.forEach((input, index) => {
-      eventParameters[input.name] = event.args[index];
-    });
-
-    return {
-      blockNumber: log.blockNumber,
-      data: log.data,
-      name: event.name,
-      hash: log.transactionHash,
-      id: `${log.transactionHash}-${log.index}`,
-      event: event.fragment,
-      params: eventParameters,
-    };
-  });
-
-  return formattedLogs
-    .filter((e): e is Exclude<typeof e, null> => !!e)
-    .sort((a, b) => b.blockNumber - a.blockNumber);
-}
 
 function processConditions(logs: FormattedLog[], condition?: Condition): FormattedLog[] {
   if (!condition) return logs;
