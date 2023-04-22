@@ -9,6 +9,7 @@ import useAction from "../../../hooks/useAction";
 import { useEffect, useMemo, useState } from "react";
 import { SourceNodeData } from "../../SourceNode";
 import useFilterEvents, { FormattedLog } from "../../../hooks/useFilteredEvents";
+import { useNotificationQueue } from "../../../provider/NotificationProvider";
 
 type Props = {
   node: Node<ActionNodeData>;
@@ -30,6 +31,8 @@ export default function ActionConfig({ node }: Props) {
   const [isBusy, setIsBusy] = useState(false);
   const { runAction } = useAction();
   const { actionType, actionParams, actionLog, actionResult } = node.data;
+
+  const notification = useNotificationQueue();
 
   const incomers = getIncomers(node, nodes, edges);
 
@@ -64,6 +67,10 @@ export default function ActionConfig({ node }: Props) {
 
     newTriggers.forEach((l) => {
       console.log("Trigger: " + l.id);
+      notification.add(`event-${l.id}`, {
+        message: "New event triggered",
+        level: "info",
+      });
       eventTrigger(l);
     });
   }, [filteredLogs, actionResult]);
@@ -100,11 +107,16 @@ export default function ActionConfig({ node }: Props) {
   const manualTrigger = async () => {
     if (isBusy) return;
     setIsBusy(true);
+    const id = `manual-${Date.now()}`;
+    notification.add(`action-${id}`, {
+      message: "Manual action triggered",
+      level: "info",
+    });
     const result = await runAction(node.data);
 
     const newActionLog = [...actionLog];
     const newEntry = {
-      id: `manual-${Date.now()}`,
+      id: id,
       timestamp: Date.now(),
       triggerBy: "manual",
       results: result,
@@ -150,6 +162,10 @@ export default function ActionConfig({ node }: Props) {
               <ActionLogItem key={action.id} actionLog={action} />
             ))}
         </div>
+      </div>
+
+      <div className="flex flex-col w-full p-4 text-xs">
+        {firstSource && JSON.stringify(firstSource.condition)}
       </div>
     </div>
   );
