@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@furucombo/composable-router-api": "^0.1.10",
     "@moralisweb3/next": "^2.18.4",
     "ethers": "^6.2.3",
     "moralis": "^2.18.1",

@@ -2,8 +2,8 @@ import { Node, getIncomers, getOutgoers } from "reactflow";
 import useStore, { RFState } from "../../../lib/store";
 import { shallow } from "zustand/shallow";
 import { useMemo, useState } from "react";
-import { EventFragment } from "ethers";
-import { FilterNodeData } from "../../FilterNode";
+import { EventFragment, ParamType } from "ethers";
+import { FilterNodeData, Rule } from "../../FilterNode";
 import FilterCondition from "./FilterCondition";
 
 type Props = {
@@ -38,9 +38,33 @@ export default function FilterConfig({ node }: Props) {
     });
   };
 
+  const setRule = (rule: Rule) => {
+    updateNode(node.id, {
+      condition: {
+        event: condition.event,
+        rules: {
+          ...condition.rules,
+          [rule.param.name]: rule,
+        },
+      },
+    });
+  };
+
+  const removeRule = (param: ParamType) => {
+    updateNode(node.id, {
+      condition: {
+        event: condition.event,
+        rules: {
+          ...condition.rules,
+          [param.name]: null,
+        },
+      },
+    });
+  };
+
   if (!incomers.length) return <div className="p-1">Connect a source node</div>;
   return (
-    <div className="p-1">
+    <div className="w-4/5 p-1">
       Select event:
       <select
         name="eventFilter"
@@ -53,7 +77,13 @@ export default function FilterConfig({ node }: Props) {
           </option>
         ))}
       </select>
-      {condition && <FilterCondition condition={condition} />}
+      {condition && (
+        <FilterCondition
+          condition={condition}
+          setRule={setRule}
+          removeRule={removeRule}
+        />
+      )}
     </div>
   );
 }

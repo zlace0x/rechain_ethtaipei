@@ -11,7 +11,7 @@ export type Rule = {
 
 export type Condition = {
   event: EventFragment;
-  rules?: Rule[];
+  rules?: Record<string, Rule>;
 };
 
 export type FilterNodeData = {

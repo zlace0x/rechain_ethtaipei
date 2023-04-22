@@ -1,3 +1,5 @@
+import { JsonRpcProvider } from "ethers";
+
 export type ChainId = number | string;
 
 export enum SupportedChainId {
@@ -84,4 +86,11 @@ export function formatHexChainId(chainId: string | number): string {
     return "0x" + chainId.toString(16);
   }
   throw new Error("Invalid chainId:" + chainId);
+}
+
+export async function providerHandler(chainId: ChainId) {
+  if (!(chainId in PRIVATE_RPC)) throw new Error("Invalid chainId");
+
+  let url = PRIVATE_RPC[chainId];
+  return new JsonRpcProvider(url);
 }

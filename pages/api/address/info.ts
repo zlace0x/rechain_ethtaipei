@@ -1,7 +1,12 @@
 import { isAddress, JsonRpcProvider, Provider } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ethers } from "ethers";
-import { ChainId, PRIVATE_RPC, SupportedChainId } from "../../../lib/network";
+import {
+  ChainId,
+  PRIVATE_RPC,
+  providerHandler,
+  SupportedChainId,
+} from "../../../lib/network";
 
 export type AddressInfo = {
   address: string;
@@ -108,11 +113,4 @@ async function getTransparentProxy(
   );
 
   return target;
-}
-
-async function providerHandler(chainId: ChainId) {
-  if (!(chainId in PRIVATE_RPC)) throw new Error("Invalid chainId");
-
-  let url = PRIVATE_RPC[chainId];
-  return new JsonRpcProvider(url);
 }
