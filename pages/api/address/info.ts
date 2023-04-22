@@ -18,6 +18,7 @@ export type AddressInfo = {
 export type ErrorMessage = {
   message: string;
 };
+
 async function hasContractCode(
   provider: JsonRpcProvider,
   address: string
@@ -65,14 +66,12 @@ export default async function handler(
     info.abi = contractInfo?.abi;
     info.name = contractInfo?.name;
   }
-
   return res.status(200).json(info);
 }
 
 async function getContractInfo(address: string, chainId: string) {
-  // Change ChainID
   let fetchUrl = "";
-  console.log("[info.ts] chainId is: ", chainId);
+  console.log("[Address info.ts] chainId is: ", chainId);
   switch (chainId) {
     case SupportedChainId.GNOSIS.toString(): {
       fetchUrl = `https://api.gnosisscan.io/api?module=contract&action=getsourcecode&address=${address}&apikey=${process.env.GNOSISSCAN_API_KEY}`;
@@ -86,7 +85,6 @@ async function getContractInfo(address: string, chainId: string) {
   const data = await response.json();
   if (data.status !== "1") return null;
   const result = data.result[0];
-  console.log("Contract info of " + fetchUrl, result);
   return {
     abi: result.ABI,
     name: result.ContractName,
