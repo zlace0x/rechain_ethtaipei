@@ -37,7 +37,7 @@ export const CHAIN_INFO: Record<ChainId, any> = {
     chainName: "goerli",
     swapLink: "https://app.uniswap.org/#/swap?",
     nativeCurrency: { name: "Görli Ether", symbol: "görETH", decimals: 18 },
-    logo: "/eth_logo.png",
+    logo: "/eth_goerli.png",
     disabled: false,
     rpcUrls: [`https://rpc.ankr.com/eth_goerli`],
   },
@@ -64,4 +64,11 @@ export const CHAIN_INFO: Record<ChainId, any> = {
     disabled: false,
     rpcUrls: ["https://rpc.gnosischain.com/"],
   },
+};
+
+export const PRIVATE_RPC = {
+  [SupportedChainId.GNOSIS]: process.env.QN_GNOSIS_RPC,
+  [SupportedChainId.ARBITRUM_ONE]: process.env.QN_ARBITRUM_RPC,
+  [SupportedChainId.GOERLI]: process.env.QN_GOERLI_RPC,
+  [SupportedChainId.FURU_MAINNET]: "https://ethtaipei-node.furucombo.app/node",
 };
