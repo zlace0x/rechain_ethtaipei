@@ -52,7 +52,7 @@ export default function WorkflowBuilder() {
               className="px-4 py-2 border rounded shadow-lg bg-gray-50"
               onClick={addFilterNode}
             >
-              Add Condition
+              Add Filter
             </div>
           </Panel>
           <Background />

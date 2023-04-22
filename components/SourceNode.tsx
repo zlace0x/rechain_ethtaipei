@@ -101,7 +101,7 @@ export default function EventSourceNode({
         )}
       </div>
 
-      {!!allEvents?.length && <Handle type="source" position={Position.Right} id="a" />}
+      <Handle type="source" position={Position.Right} id="a" />
     </>
   );
 }
