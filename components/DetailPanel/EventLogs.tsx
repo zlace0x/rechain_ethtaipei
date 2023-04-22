@@ -1,10 +1,16 @@
 import { useState } from "react";
 import useContractEvents from "../../hooks/useContractEvents";
 
-export default function EventLogs({ address, chainId }: { address: string, chainId: string | number}) {
-  const { parsedLogs, isFetching } = useContractEvents(address, chainId) ;
-  console.log('[EventLogs.ts] data: ', parsedLogs)
+export default function EventLogs({
+  address,
+  chainId,
+}: {
+  address: string;
+  chainId: string | number;
+}) {
+  const { parsedLogs, isFetching } = useContractEvents(address, chainId);
   if (isFetching) return <div>Loading...</div>;
+
   return (
     <div className="w-full">
       <span className="text-sm">Events:</span>
