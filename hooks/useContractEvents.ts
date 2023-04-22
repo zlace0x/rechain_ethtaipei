@@ -2,14 +2,16 @@ import { useEvmContractLogs } from "@moralisweb3/next";
 import { Interface } from "ethers";
 import { EvmTransactionLog } from "moralis/common-evm-utils";
 import useAddressInfo from "./useAddressInfo";
+import { formatHexChainId } from "../lib/network";
 
 // Get ChainID
-export default function useContractEvents(contract: string, chainId: string|number) {
+export default function useContractEvents(contract: string, chainId: string | number) {
+  const hexChainId = formatHexChainId(chainId);
   const { data, isFetching } = useEvmContractLogs({
-    chain: chainId,
+    chain: hexChainId,
     address: contract,
   });
-  console.log('[useContractEvents.ts] data: ', data)
+  console.log("[useContractEvents.ts] data: ", data);
 
   const { data: addressInfo } = useAddressInfo(contract, chainId);
 

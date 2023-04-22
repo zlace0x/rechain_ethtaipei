@@ -1,7 +1,4 @@
-import { isAddress } from "ethers";
-import { ChangeEvent, useCallback, useState } from "react";
-import { Handle, Position, Node, NodeProps } from "reactflow";
-import EventLogs from "./EventLogs";
+import { Handle, Position, NodeProps } from "reactflow";
 
 type NodeData = {};
 
