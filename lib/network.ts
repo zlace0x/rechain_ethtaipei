@@ -66,9 +66,22 @@ export const CHAIN_INFO: Record<ChainId, any> = {
   },
 };
 
-export const PRIVATE_RPC = {
+export const PRIVATE_RPC: Record<ChainId, string | undefined> = {
   [SupportedChainId.GNOSIS]: process.env.QN_GNOSIS_RPC,
   [SupportedChainId.ARBITRUM_ONE]: process.env.QN_ARBITRUM_RPC,
   [SupportedChainId.GOERLI]: process.env.QN_GOERLI_RPC,
   [SupportedChainId.FURU_MAINNET]: "https://ethtaipei-node.furucombo.app/node",
 };
+
+export function formatHexChainId(chainId: string | number): string {
+  if (typeof chainId == "string") {
+    if (chainId.startsWith("0x")) return chainId;
+
+    return "0x" + parseInt(chainId).toString(16);
+  }
+
+  if (typeof chainId === "number") {
+    return "0x" + chainId.toString(16);
+  }
+  throw new Error("Invalid chainId:" + chainId);
+}

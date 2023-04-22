@@ -1,9 +1,9 @@
 import { isAddress } from "ethers";
 import { ChangeEvent, useCallback, useState } from "react";
-import { Handle, Position, Node, NodeProps, NodeToolbar } from "reactflow";
+import { Handle, Position, NodeProps, NodeToolbar } from "reactflow";
 import useAddressInfo from "../hooks/useAddressInfo";
 import EventLogs from "./EventLogs";
-import { ChainId } from "../lib/network";
+import { ChainId, SupportedChainId } from "../lib/network";
 import NetworkSelect, { NetworkIcon } from "./NetworkSelect";
 import useStore, { RFState } from "../lib/store";
 import { shallow } from "zustand/shallow";
@@ -20,7 +20,7 @@ const selector = (state: RFState) => ({
 
 export default function EventSourceNode({ selected, id }: NodeProps<NodeData>) {
   const [contract, setContract] = useState("");
-  const [chainId, setChainId] = useState<ChainId>(1);
+  const [chainId, setChainId] = useState<ChainId>(SupportedChainId.GNOSIS);
   const { updateNode } = useStore(selector, shallow);
 
   const onChange = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
@@ -29,11 +29,12 @@ export default function EventSourceNode({ selected, id }: NodeProps<NodeData>) {
   }, []);
 
   const isValidAddress = isAddress(contract);
+  console.log("[SourceNode.tsx] chainId: ", chainId);
   const {
     data: addressInfo,
     error: addressInfoError,
     isLoading,
-  } = useAddressInfo(contract);
+  } = useAddressInfo(contract, chainId);
 
   const isContract = !addressInfoError && addressInfo?.isContract;
 
@@ -73,7 +74,9 @@ export default function EventSourceNode({ selected, id }: NodeProps<NodeData>) {
             }`}
           />
         </div>
-        {isContract && isValidAddress && <EventLogs address={contract} />}
+        {isContract && isValidAddress && (
+          <EventLogs address={contract} chainId={chainId} />
+        )}
       </div>
       <Handle type="source" position={Position.Right} id="a" />
     </>

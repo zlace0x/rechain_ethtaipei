@@ -1,9 +1,14 @@
 import { useState } from "react";
 import useContractEvents from "../hooks/useContractEvents";
 
-export default function EventLogs({ address }: { address: string }) {
-  const { parsedLogs, isFetching } = useContractEvents(address);
-
+export default function EventLogs({
+  address,
+  chainId,
+}: {
+  address: string;
+  chainId: string | number;
+}) {
+  const { parsedLogs, isFetching } = useContractEvents(address, chainId);
   if (isFetching) return <div>Loading...</div>;
 
   return (
