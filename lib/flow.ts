@@ -1,3 +1,4 @@
+import ActionNode from "../components/ActionNode";
 import EventFilterNode from "../components/FilterNode";
 import EventSourceNode from "../components/SourceNode";
 
@@ -17,4 +18,13 @@ export const initialNodes: Node[] = [
 export const nodeTypes = {
   eventSourceNode: EventSourceNode,
   eventFilterNode: EventFilterNode,
+  actionNode: ActionNode,
+};
+
+export type NodeType = keyof typeof nodeTypes;
+
+export const nodeLabels: Record<NodeType, string> = {
+  eventSourceNode: "Event source",
+  eventFilterNode: "Event Condition Filter",
+  actionNode: "Action Definition",
 };

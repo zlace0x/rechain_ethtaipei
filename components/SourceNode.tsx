@@ -1,5 +1,5 @@
-import { isAddress } from "ethers";
-import { ChangeEvent, useCallback, useState } from "react";
+import { EventFragment, isAddress } from "ethers";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Handle, Position, NodeProps, NodeToolbar } from "reactflow";
 import useAddressInfo from "../hooks/useAddressInfo";
 import EventLogs from "./EventLogs";
@@ -7,29 +7,37 @@ import { ChainId, SupportedChainId } from "../lib/network";
 import NetworkSelect, { NetworkIcon } from "./NetworkSelect";
 import useStore, { RFState } from "../lib/store";
 import { shallow } from "zustand/shallow";
+import { AddressInfo } from "../pages/api/address/info";
+import { filterABIEvents } from "../hooks/useContractEvents";
 
-type NodeData = {
+export type SourceNodeData = {
   chainId: number;
-  address: string;
-  outputEvents: Array<any>;
+  address?: string;
+  addressInfo?: AddressInfo;
+  allEvents?: Array<EventFragment>;
 };
 
 const selector = (state: RFState) => ({
   updateNode: state.updateNode,
 });
 
-export default function EventSourceNode({ selected, id }: NodeProps<NodeData>) {
+export default function EventSourceNode({
+  selected,
+  id,
+  data,
+}: NodeProps<SourceNodeData>) {
   const [contract, setContract] = useState("");
   const [chainId, setChainId] = useState<ChainId>(SupportedChainId.GNOSIS);
   const { updateNode } = useStore(selector, shallow);
 
   const onChange = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
     setContract(evt.target.value);
-    updateNode(id, { data: { address: evt.target.value } });
+    updateNode(id, { address: evt.target.value });
   }, []);
 
+  const { allEvents } = data;
+
   const isValidAddress = isAddress(contract);
-  console.log("[SourceNode.tsx] chainId: ", chainId);
   const {
     data: addressInfo,
     error: addressInfoError,
@@ -37,14 +45,26 @@ export default function EventSourceNode({ selected, id }: NodeProps<NodeData>) {
   } = useAddressInfo(contract, chainId);
 
   const isContract = !addressInfoError && addressInfo?.isContract;
+  const events = useMemo(
+    () => (addressInfo?.abi ? filterABIEvents(addressInfo?.abi) : []),
+    [addressInfo]
+  );
 
   const hintText = !isValidAddress
     ? "Enter a contract or account address"
     : isLoading
     ? "Loading..."
     : isContract
-    ? "Contract"
+    ? `Contract: ${addressInfo?.name}`
     : "EOA";
+
+  useEffect(() => {
+    updateNode(id, { addressInfo: addressInfo, allEvents: events });
+  }, [addressInfo]);
+
+  useEffect(() => {
+    updateNode(id, { chainId });
+  }, [chainId]);
 
   return (
     <>
@@ -74,10 +94,13 @@ export default function EventSourceNode({ selected, id }: NodeProps<NodeData>) {
             }`}
           />
         </div>
-        {isContract && isValidAddress && (
-          <EventLogs address={contract} chainId={chainId} />
+        {!!allEvents?.length && (
+          <div className="text-xs text-gray-600">
+            Available events: {allEvents.length}
+          </div>
         )}
       </div>
+
       <Handle type="source" position={Position.Right} id="a" />
     </>
   );
