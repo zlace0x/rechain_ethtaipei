@@ -6,11 +6,10 @@ import { formatHexChainId } from "../lib/network";
 
 export default function useContractEvents(contract: string, chainId: string | number) {
   const hexChainId = formatHexChainId(chainId);
-    // setInterval()
-    const { data, isFetching } = useEvmContractLogs({
-      chain: hexChainId,
-      address: contract,
-    });
+  const { data, isFetching } = useEvmContractLogs({
+    chain: hexChainId,
+    address: contract,
+  });
 
   console.log('[useContractEvents.ts] data: ', data)
   const { data: addressInfo } = useAddressInfo(contract, chainId);
