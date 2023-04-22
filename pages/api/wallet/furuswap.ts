@@ -37,7 +37,18 @@ const SUPPORTED_TOKENS = {
 
 type SupportedTokens = keyof typeof SUPPORTED_TOKENS;
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
+export type FuruResponseData =
+  | api.RouterDataEstimateResult
+  | {
+      approval_txs?: string[];
+      hash: string;
+    }
+  | { address: string };
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<FuruResponseData>
+) {
   if (req.method === "OPTIONS") {
     return res.status(200); // CORS
   }
@@ -55,7 +66,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   if (req.method !== "POST") return res.status(501);
 
-  const { sourceToken, targetToken, amount } = req.body;
+  const { sourceToken, targetToken, amount, isSimulated } = req.body;
 
   if (!validateParams(sourceToken, targetToken, amount)) {
     throw new Error("Invalid params");
@@ -83,7 +94,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   const estimateResult = await api.estimateRouterData(routerData);
 
-  //   res.status(200).json(estimateResult);
+  if (isSimulated) {
+    res.status(200).json(estimateResult);
+    return;
+  }
 
   console.log("estimateResult", estimateResult);
   const approval_txs = [];

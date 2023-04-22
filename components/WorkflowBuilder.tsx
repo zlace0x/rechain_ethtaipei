@@ -32,6 +32,7 @@ export default function WorkflowBuilder() {
   const addActionNode = () => {
     addNode("actionNode", {
       isValid: false,
+      actionLog: [],
     });
   };
 

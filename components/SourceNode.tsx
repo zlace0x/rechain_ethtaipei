@@ -2,7 +2,6 @@ import { EventFragment, isAddress } from "ethers";
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Handle, Position, NodeProps, NodeToolbar } from "reactflow";
 import useAddressInfo from "../hooks/useAddressInfo";
-import EventLogs from "./EventLogs";
 import { ChainId, SupportedChainId } from "../lib/network";
 import NetworkSelect, { NetworkIcon } from "./NetworkSelect";
 import useStore, { RFState } from "../lib/store";

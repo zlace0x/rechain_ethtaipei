@@ -71,7 +71,6 @@ export default async function handler(
 
 async function getContractInfo(address: string, chainId: string) {
   let fetchUrl = "";
-  console.log("[Address info.ts] chainId is: ", chainId);
   switch (chainId) {
     case SupportedChainId.GNOSIS.toString(): {
       fetchUrl = `https://api.gnosisscan.io/api?module=contract&action=getsourcecode&address=${address}&apikey=${process.env.GNOSISSCAN_API_KEY}`;

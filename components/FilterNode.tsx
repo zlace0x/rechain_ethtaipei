@@ -30,7 +30,8 @@ export default function EventFilterNode({
   data,
 }: NodeProps<FilterNodeData>) {
   const { nodes, edges } = useStore(selector, shallow);
-  const node = nodes.find((n) => n.id === id)!!;
+  const node = nodes.find((n) => n.id === id);
+  if (!node) return null;
   const incomers = getIncomers(node, nodes, edges);
 
   const { condition } = data;

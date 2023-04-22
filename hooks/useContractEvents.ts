@@ -11,7 +11,6 @@ export default function useContractEvents(contract: string, chainId: string | nu
     address: contract,
   });
 
-  console.log('[useContractEvents.ts] data: ', data)
   const { data: addressInfo } = useAddressInfo(contract, chainId);
 
   const parsedLogs = addressInfo && parseUniqueLogs(data || [], addressInfo?.abi || "[]");

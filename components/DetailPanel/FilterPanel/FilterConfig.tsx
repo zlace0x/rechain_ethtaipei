@@ -5,6 +5,9 @@ import { useMemo, useState } from "react";
 import { EventFragment, ParamType } from "ethers";
 import { FilterNodeData, Rule } from "../../FilterNode";
 import FilterCondition from "./FilterCondition";
+import EventLogs from "../EventLogs";
+import { SourceNodeData } from "../../SourceNode";
+import EventFilteredLogs from "../EventFilteredLogs";
 
 type Props = {
   node: Node<FilterNodeData>;
@@ -28,6 +31,11 @@ export default function FilterConfig({ node }: Props) {
     () => incomers?.[0]?.data?.allEvents,
     [incomers]
   );
+
+  const sourceNodeData = useMemo(() => {
+    const sourceNode: SourceNodeData = incomers?.[0]?.data;
+    return sourceNode;
+  }, [incomers]);
 
   const selectEventFilter = (e: React.ChangeEvent<HTMLSelectElement>) => {
     updateNode(node.id, {
@@ -87,6 +95,15 @@ export default function FilterConfig({ node }: Props) {
           removeRule={removeRule}
         />
       )}
+      <div className="h-[20vh] overflow-y-scroll border-t-2">
+        {sourceNodeData && sourceNodeData.address && condition && (
+          <EventFilteredLogs
+            address={sourceNodeData.address}
+            chainId={sourceNodeData.chainId}
+            condition={condition}
+          />
+        )}
+      </div>
     </div>
   );
 }

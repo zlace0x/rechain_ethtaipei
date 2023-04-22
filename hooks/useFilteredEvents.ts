@@ -7,20 +7,23 @@ import { Condition } from "../components/FilterNode";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
-export default function useLogEvents(
+export default function useFilterEvents(
   address: string,
   chainId: number | string,
-  filter?: Condition
+  filter: Condition
 ) {
   const isValidAddress = isAddress(address);
-
+  console.log("address", address);
+  console.log("chainId", chainId);
+  console.log("filter", filter);
   const { data: rawLogs, isLoading: logLoading } = useSWR<Log[]>(
-    isValidAddress ? `/api/contract/info?address=${address}&chainId=${chainId}` : null,
+    isValidAddress
+      ? `/api/contract/logs?address=${address}&chainId=${chainId}&topic=${filter?.event.topicHash}`
+      : null,
     fetcher,
     { refreshInterval: 5000 }
   );
 
-  console.log("rawLogs", rawLogs?.length);
   const { data: addressInfo, isLoading: addressLoading } = useAddressInfo(
     address,
     chainId
@@ -39,7 +42,7 @@ export default function useLogEvents(
 
   return { logs, filteredLogs, isLoading: logLoading || addressLoading };
 }
-type FormattedLog = {
+export type FormattedLog = {
   blockNumber: number;
   data: string;
   name: string;

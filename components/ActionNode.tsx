@@ -14,10 +14,22 @@ export const ActionTypeLabel = {
   [ActionType.ETH_TRANSFER]: "Transfer ETH",
 };
 
+export type ActionLog = {
+  timestamp: number;
+  triggerBy: string; // log.id or manual
+  results: {
+    success: boolean;
+    result: any;
+    hash?: string;
+    log?: string[];
+  };
+};
 export type ActionNodeData = {
   actionType: ActionType;
   actionParams: any;
   isValid: boolean;
+  status: "running" | "stopped";
+  actionLog: ActionLog[];
 };
 
 const selector = (state: RFState) => ({
@@ -38,6 +50,7 @@ export default function ActionNode({ selected, id, data }: NodeProps<ActionNodeD
     const actionType = event.target.value as ActionType;
     updateNode(id, { actionType });
   };
+
   return (
     <div
       className={`w-full p-4 bg-white rounded-lg border ${selected && "border-blue-400"}`}
