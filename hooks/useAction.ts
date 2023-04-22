@@ -30,7 +30,7 @@ async function postFuruAPI(actionParams: any): Promise<any> {
       isSimulated: false,
     }),
   });
-  const result: FuruResponseData = await response.json();
+  const result: any = await response.json();
   return {
     success: !!result,
     result,

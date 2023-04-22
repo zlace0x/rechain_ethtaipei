@@ -18,7 +18,7 @@ export default function FuruSwap({
   const [formData, setFormData] = useReducer(formReducer, actionParams);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: React.FormEvent<any>) => {
     event.preventDefault();
     if (errorMessage) return;
 
@@ -38,7 +38,7 @@ export default function FuruSwap({
     });
   };
 
-  const handleChange = (event) => {
+  const handleChange = (event: React.ChangeEvent<any>) => {
     setFormData({
       name: "dirty",
       value: "true",

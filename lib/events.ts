@@ -74,7 +74,7 @@ export function parseLogs(logs: Log[], abi: string): FormattedLog[] {
     // Extract human-readable event parameters
     const eventParameters: Record<string, any> = {};
     event.fragment.inputs.forEach((input, index) => {
-      eventParameters[input.name] = event.args[index];
+      eventParameters[input.name] = event!!.args[index];
     });
 
     return {
