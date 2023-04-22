@@ -5,6 +5,7 @@ import { shallow } from "zustand/shallow";
 
 import useStore, { RFState } from "../lib/store";
 import { nodeTypes } from "../lib/flow";
+import DetailPanel from "./DetailPanel/DetailPanel";
 
 const selector = (state: RFState) => ({
   nodes: state.nodes,
@@ -21,7 +22,7 @@ export default function WorkflowBuilder() {
     useStore(selector, shallow);
 
   const addSourceNode = () => {
-    addNode("eventSourceNode", {});
+    addNode("eventSourceNode", { allEvents: [] });
   };
 
   const addFilterNode = () => {
@@ -30,7 +31,7 @@ export default function WorkflowBuilder() {
 
   return (
     <div className="flex w-screen h-screen">
-      <div style={{ width: "80vw", height: "100vh" }}>
+      <div style={{ width: "75vw", height: "100vh" }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -58,9 +59,8 @@ export default function WorkflowBuilder() {
           <Controls />
         </ReactFlow>
       </div>
-      <div className="w-[20vw] h-[100vh] flex flex-col justify-start items-center border-l shadow-lg">
-        <div className="">Details</div>
-        {selectedNode && JSON.stringify(selectedNode.data)}
+      <div className="w-[25vw] h-[100vh] border-l shadow-lg overflow-hidden">
+        <DetailPanel node={selectedNode} />
       </div>
     </div>
   );

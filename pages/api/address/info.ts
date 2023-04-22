@@ -6,7 +6,7 @@ import { ChainId, PRIVATE_RPC, SupportedChainId } from "../../../lib/network";
 export type AddressInfo = {
   address: string;
   isContract: boolean;
-  contractABI?: string;
+  abi?: string;
   name?: string;
 };
 
@@ -57,7 +57,7 @@ export default async function handler(
         chainId as string
       );
     }
-    info.contractABI = contractInfo?.abi;
+    info.abi = contractInfo?.abi;
     info.name = contractInfo?.name;
   }
 

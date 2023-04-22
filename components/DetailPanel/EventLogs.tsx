@@ -1,5 +1,5 @@
 import { useState } from "react";
-import useContractEvents from "../hooks/useContractEvents";
+import useContractEvents from "../../hooks/useContractEvents";
 
 export default function EventLogs({
   address,
