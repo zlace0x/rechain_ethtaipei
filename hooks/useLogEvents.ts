@@ -10,6 +10,7 @@ export default function useLogEvents(address: string, chainId: number | string) 
 
   return useSWR<ErrorMessage>(
     isValidAddress ? `/api/contract/info?address=${address}&chainId=${chainId}` : null,
-    fetcher
+    fetcher,
+    { refreshInterval: 1000 }
   );
 }
