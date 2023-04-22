@@ -1,5 +1,4 @@
 import { EventFragment } from "ethers";
-import { useState } from "react";
 
 export default function EventItem({
   event,

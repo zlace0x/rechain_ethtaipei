@@ -5,7 +5,7 @@ import { shallow } from "zustand/shallow";
 
 import useStore, { RFState } from "../lib/store";
 import { nodeTypes } from "../lib/flow";
-import DetailPanel from "./DetailPanel/DetailPanel";
+import DetailPanel from "./DetailPanel";
 
 const selector = (state: RFState) => ({
   nodes: state.nodes,
@@ -27,6 +27,12 @@ export default function WorkflowBuilder() {
 
   const addFilterNode = () => {
     addNode("eventFilterNode", {});
+  };
+
+  const addActionNode = () => {
+    addNode("actionNode", {
+      isValid: false,
+    });
   };
 
   return (
@@ -53,6 +59,13 @@ export default function WorkflowBuilder() {
               onClick={addFilterNode}
             >
               Add Filter
+            </div>
+
+            <div
+              className="px-4 py-2 border rounded shadow-lg bg-gray-50"
+              onClick={addActionNode}
+            >
+              Add Action
             </div>
           </Panel>
           <Background />

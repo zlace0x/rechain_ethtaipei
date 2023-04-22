@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import * as api from "@furucombo/composable-router-api";
 import * as common from "@furucombo/composable-router-common";
-import { TransactionRequest, Wallet } from "ethers";
+import { Wallet, isAddress } from "ethers";
 import { providerHandler } from "../../../lib/network";
 
 const SUPPORTED_TOKENS = {
@@ -55,9 +54,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   if (req.method !== "POST") return res.status(501);
 
-  const { sourceToken, targetToken, amount } = req.body;
+  const { to, amount } = req.body;
 
-  if (!validateParams(sourceToken, targetToken, amount)) {
+  if (!validateParams(to, amount)) {
     throw new Error("Invalid params");
   }
 
@@ -67,63 +66,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
   const signer = wallet.connect(provider);
 
-  const swapQuotation = await api.protocols.uniswapv3.getSwapTokenQuotation(chainId, {
-    input: { token: SUPPORTED_TOKENS[sourceToken as SupportedTokens], amount: amount },
-    tokenOut: SUPPORTED_TOKENS[targetToken as SupportedTokens],
-  });
-
-  const swapLogic = api.protocols.uniswapv3.newSwapTokenLogic(swapQuotation);
-
-  const routerData: api.RouterData = {
-    chainId,
-    account: signer.address,
-    logics: [swapLogic],
-    slippage: 100, // 1%
-  };
-
-  const estimateResult = await api.estimateRouterData(routerData);
-
-  //   res.status(200).json(estimateResult);
-
-  console.log("estimateResult", estimateResult);
-  const approval_txs = [];
-  for (const approval of estimateResult.approvals) {
-    console.log("sending approval");
-    const tx = await signer.sendTransaction(approval as TransactionRequest);
-    console.log("approval tx", tx.hash);
-    approval_txs.push(tx.hash);
-  }
-
-  if (estimateResult.permitData) {
-    const permitData = estimateResult.permitData;
-    console.log("permitData", permitData);
-    const permitSig = await signer.signTypedData(
-      permitData.domain as any,
-      permitData.types,
-      permitData.values
-    );
-
-    routerData.permitData = estimateResult.permitData;
-    routerData.permitSig = permitSig;
-  }
-
-  const transactionRequest = await api.buildRouterTransactionRequest(routerData);
-
-  const tx = await signer.sendTransaction(transactionRequest as TransactionRequest);
+  const tx = await signer.sendTransaction({ to: to, value: amount });
 
   res.status(200).json({
-    approval_txs,
     hash: tx.hash,
   });
 }
 
-function validateParams(source: string, target: string, amount: string): boolean {
-  if (!source || !target || !amount) {
-    return false;
-  }
-
-  if (!(source in SUPPORTED_TOKENS)) return false;
-  if (!(target in SUPPORTED_TOKENS)) return false;
+function validateParams(to: string, amount: string): boolean {
+  if (!isAddress(to)) return false;
+  if (!amount || amount.indexOf(".") != -1) return false;
 
   return true;
 }
