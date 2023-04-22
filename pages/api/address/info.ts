@@ -10,6 +10,7 @@ export type AddressInfo = {
 export type ErrorMessage = {
   message: string;
 };
+
 async function hasContractCode(
   provider: JsonRpcProvider,
   address: string
@@ -38,8 +39,8 @@ export default async function handler(
     return;
   }
 
-  const provider = await providerHandler(chainId[0]);
-
+  const provider = await providerHandler(chainId);
+  console.log('[info.ts] provider is: ', provider)
   const isContract = await hasContractCode(provider, address as string);
   const info: AddressInfo = {
     address: address as string,
@@ -53,14 +54,17 @@ export default async function handler(
 }
 
 async function getContractABI(address: string, chainId: string) {
-  // Change ChainID
   let fetchUrl = ""
-  console.log('[info.ts] chainId is: ', chainId)
+  // console.log('[info.ts] chainId is: ', chainId)
+  // console.log('[info.ts] address is: ', address)
   switch(chainId){
-    case '0x64':{
+    case "100":{
+      console.log('[info.ts] chainId is: ', 100)
       fetchUrl = `https://api.gnosisscan.io/api?module=contract&action=getabi&address=${address}&apikey=${process.env.GNOSISSCAN_API_KEY}`
+      break
     }
     default:{
+      console.log('[info.ts] chainId is: ', 0)
       fetchUrl = `https://api.arbiscan.io/api?module=contract&action=getabi&address=${address}&apikey=${process.env.ARBISCAN_API_KEY}`
     }
   }
@@ -68,11 +72,12 @@ async function getContractABI(address: string, chainId: string) {
     fetchUrl
   );
   const data = await response.json();
+  // console.log('[info.ts] getContractABI is: ', data)
   if (data.status !== "1") return null;
   return data.result;
 }
 
-async function providerHandler(chainId: string | number){
+async function providerHandler(chainId: any){
   if(chainId === '100'){
     let url = process.env.QUICKNODE_PROVIDER;
     var customHttpProvider = new JsonRpcProvider(url);
