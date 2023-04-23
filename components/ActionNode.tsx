@@ -2,6 +2,8 @@ import { Handle, NodeProps, Position, getIncomers } from "reactflow";
 import useStore, { RFState } from "../lib/store";
 import { shallow } from "zustand/shallow";
 import Warning from "./Icons/Warning";
+import { SourceNodeData } from "./SourceNode";
+import { FilterNodeData } from "./FilterNode";
 
 export const ActionType = {
   FURU_UNISWAP: "FURU_UNISWAP",
@@ -25,6 +27,12 @@ export type ActionLog = {
     log?: string[];
   };
 };
+
+export type SourceMonitor = SourceNodeData &
+  FilterNodeData & {
+    status?: "running" | "stopped";
+  };
+
 export type ActionNodeData = {
   actionType: ActionType;
   actionParams: any;
@@ -32,6 +40,7 @@ export type ActionNodeData = {
   status: "running" | "stopped";
   actionLog: ActionLog[];
   actionResult: Record<string, ActionLog>;
+  monitors?: SourceMonitor[];
 };
 
 const selector = (state: RFState) => ({
@@ -46,7 +55,7 @@ export default function ActionNode({ selected, id, data }: NodeProps<ActionNodeD
   if (!node) return null;
   const incomers = getIncomers(node, nodes, edges);
 
-  const { isValid, actionType } = data;
+  const { isValid, actionType, status, monitors } = data;
 
   const onSelectAction = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const actionType = event.target.value as ActionType;

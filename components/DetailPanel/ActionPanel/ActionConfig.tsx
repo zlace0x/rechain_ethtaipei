@@ -2,7 +2,13 @@ import { Node, getIncomers, getOutgoers } from "reactflow";
 import useStore, { RFState } from "../../../lib/store";
 import { shallow } from "zustand/shallow";
 import { FilterNodeData } from "../../FilterNode";
-import { ActionLog, ActionNodeData, ActionType, ActionTypeLabel } from "../../ActionNode";
+import {
+  ActionLog,
+  ActionNodeData,
+  ActionType,
+  ActionTypeLabel,
+  SourceMonitor,
+} from "../../ActionNode";
 import FuruSwap from "../../Actions/FuruSwap";
 import EthTransfer from "../../Actions/EthTransfer";
 import useAction from "../../../hooks/useAction";
@@ -30,14 +36,14 @@ export default function ActionConfig({ node }: Props) {
   const { nodes, edges, updateNode } = useStore(selector, shallow);
   const [isBusy, setIsBusy] = useState(false);
   const { runAction } = useAction();
-  const { actionType, actionParams, actionLog, actionResult } = node.data;
+  const { status, actionType, actionParams, actionLog, actionResult } = node.data;
 
   const notification = useNotificationQueue();
 
   const incomers = getIncomers(node, nodes, edges);
 
-  const sourcesData: (SourceNodeData & FilterNodeData)[] = useMemo(() => {
-    const sources: (SourceNodeData & FilterNodeData)[] = [];
+  const sourcesData: SourceMonitor[] = useMemo(() => {
+    const sources: SourceMonitor[] = [];
     const filterNodes = incomers;
     filterNodes.forEach((filterNode) => {
       const source = getIncomers(filterNode, nodes, edges);
@@ -46,6 +52,7 @@ export default function ActionConfig({ node }: Props) {
       sources.push({
         ...sourceNode,
         ...filterNode.data,
+        status: "running",
       });
     });
     return sources;
@@ -59,8 +66,38 @@ export default function ActionConfig({ node }: Props) {
     firstSource?.condition
   );
 
+  const startMonitor = () => {
+    const sources: SourceMonitor[] = [];
+    const filterNodes = incomers;
+    filterNodes.forEach((filterNode) => {
+      const source = getIncomers(filterNode, nodes, edges);
+      const sourceNode: SourceNodeData = source?.[0]?.data;
+      if (!sourceNode.address) return;
+      sources.push({
+        ...sourceNode,
+        ...filterNode.data,
+        status: "running",
+      });
+    });
+
+    updateNode(node.id, {
+      status: "running",
+      monitors: sources,
+    });
+  };
+
+  const stopMonitor = () => {
+    updateNode(node.id, {
+      status: "stopped",
+      monitors: null,
+    });
+  };
+
+  const isRunning = status == "running";
+
   useEffect(() => {
     if (!filteredLogs) return;
+    if (!isRunning) return;
     const newTriggers = actionResult
       ? filteredLogs.filter((l) => !(l.id in actionResult))
       : filteredLogs;
@@ -165,7 +202,14 @@ export default function ActionConfig({ node }: Props) {
       </div>
 
       <div className="flex flex-col w-full p-4 text-xs">
-        {firstSource && JSON.stringify(firstSource.condition)}
+        <div
+          onClick={isRunning ? stopMonitor : startMonitor}
+          className={`rounded ${
+            isRunning ? "bg-red-400" : "bg-green-600"
+          } p-2 font-bold text-center w-40 text-white`}
+        >
+          {isRunning ? "Stop" : "Start"}
+        </div>
       </div>
     </div>
   );
